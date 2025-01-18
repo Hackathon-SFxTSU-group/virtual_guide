@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Classifier</title>
+    <style>
+        /* Общие стили */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        p {
+            color: #555;
+        }
+
+        /* Стили для формы загрузки изображения */
+        #uploadForm {
+            margin-bottom: 2rem;
+        }
+
+        #uploadForm label {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #uploadForm label:hover {
+            background-color: #0056b3;
+        }
+
+        #uploadForm button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        #uploadForm button:hover {
+            background-color: #218838;
+        }
+
+        /* Стили для предпросмотра изображения */
+        #imagePreview {
+            margin-bottom: 2rem;
+        }
+
+        #previewImage {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Стили для формы вопроса */
+        #askForm {
+            margin-top: 2rem;
+        }
+
+        #askForm input[type="text"] {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+        }
+
+        #askForm button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #askForm button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Стили для результатов */
+        #result, #result2 {
+            margin-top: 2rem;
+            color: #333;
+        }
+
+        #result p, #result2 p {
+            margin: 0.5rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <!-- Форма для загрузки изображения -->
+        <form id="uploadForm">
+            <input type="file" id="imageInput" accept="image/*" required />
+            <button type="submit">Upload Image</button>
+        </form>
+        
+        <!-- Элемент для отображения изображения -->
+        <div id="imagePreview">
+            <img id="previewImage" src="" alt="Image Preview" style="display:none; max-width: 100%;"/>
+        </div>
+
+        <div id="result">
+            <!-- Результаты загрузки изображения и классификации -->
+        </div>
+
+        <!-- Форма для вопроса (изначально скрыта) -->
+        <form id="askForm" style="display: none;">
+            <input type="text" id="questionInput" placeholder="Введите ваш вопрос" required />
+            <button type="submit">Ask Question</button>
+        </form>
+      
+        <div id="result2">
+            <!-- Результаты загрузки изображения и классификации -->
+        </div>
+    </div>
+      
+    <script>
+        // Обработка загрузки изображения
+        document.getElementById('uploadForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const fileInput = document.getElementById('imageInput');
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            
+            try {
+              // Загрузка изображения на сервер
+              const uploadResponse = await fetch('/upload', {
+                  method: 'POST',
+                  body: formData,
+              });
+  
+              if (!uploadResponse.ok) {
+                  throw new Error('Ошибка при загрузке изображения');
+              }
+  
+              const uploadData = await uploadResponse.json();
+  
+              // Отображение загруженного изображения
+              const previewImage = document.getElementById('previewImage');
+              previewImage.src = uploadData.image_url;
+              previewImage.style.display = 'block';
+  
+              // Отправка изображения на предсказание
+              const predictResponse = await fetch('/predict', {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({ image_url: uploadData.image_url }),
+              });
+  
+              if (!predictResponse.ok) {
+                  throw new Error('Ошибка при предсказании');
+              }
+  
+              const predictData = await predictResponse.json();
+  
+              // Отображение результата
+              document.getElementById('result').innerHTML = `
+                  <h2>Результат:</h2>
+                  <p>Класс: ${predictData.predicted_class}</p>
+              `;
+
+                // Показываем форму для вопроса
+                document.getElementById('askForm').style.display = 'block';
+            } catch (error) {
+                console.error('Ошибка:', error);
+                document.getElementById('result').innerHTML = `<p style="color: red;">Ошибка: ${error.message}</p>`;
+            }
+        });
+
+        // Обработка вопроса
+        document.getElementById('askForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const questionInput = document.getElementById('questionInput');
+
+            try {
+                // Отправка вопроса на сервер
+                const askResponse = await fetch('/ask', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        question: questionInput.value,
+                    }),
+                });
+
+                if (!askResponse.ok) {
+                    throw new Error('Ошибка при обработке вопроса');
+                }
+
+                const askData = await askResponse.json();
+
+                // Отображение результата
+                document.getElementById('result2').innerHTML = `
+                    <h2>Результат:</h2>
+                    <p>Ответ на вопрос: ${askData.answer}</p>
+                `;
+            } catch (error) {
+                console.error('Ошибка:', error);
+                document.getElementById('result').innerHTML = `<p style="color: red;">Ошибка: ${error.message}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>
