@@ -1,0 +1,9 @@
+<div id="container">
+  <strong>{{ name }}</strong>
+  <div class="image-container">
+    <ion-button (click)="openGallery()">Open Gallery</ion-button>
+    @if (imagePath) {
+      <img [src]="imagePath">
+    }
+  </div>
+</div>
