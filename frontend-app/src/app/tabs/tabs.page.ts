@@ -10,8 +10,6 @@ import { triangle, ellipse, square } from 'ionicons/icons';
   imports: [IonTabs, IonTabBar, IonTabButton, IonIcon, IonLabel],
 })
 export class TabsPage {
-  public environmentInjector = inject(EnvironmentInjector);
-
   constructor() {
     addIcons({ triangle, ellipse, square });
   }
