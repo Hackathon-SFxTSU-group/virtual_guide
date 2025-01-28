@@ -1,0 +1,13 @@
+# Python bytecode files
+__pycache__/
+*.pyc
+*.pyo
+
+# виртуальная среда
+vnv/
+
+# VS Code IDE
+.vscode/
+
+# requrements
+requirements.txt
