@@ -2,8 +2,16 @@ import {Camera, CameraResultType, CameraSource, Photo} from "@capacitor/camera";
 
 export abstract class PhotoService {
   async getPhoto() {
+    return this.processGetPhoto(CameraSource.Photos)
+  }
+
+  async takePhoto() {
+    return this.processGetPhoto(CameraSource.Camera)
+  }
+
+  private async processGetPhoto(cameraSource: CameraSource) {
     const image = await Camera.getPhoto({
-      source: CameraSource.Photos,
+      source: cameraSource,
       resultType: CameraResultType.Uri,
     });
 

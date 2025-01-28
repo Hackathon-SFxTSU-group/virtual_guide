@@ -28,6 +28,15 @@ export class ImageUploader {
     // this.uploadFile();
   }
 
+  async takePhoto() {
+    const photoData = await this.photoService.takePhoto();
+
+    this.imagePath.set(photoData.src);
+    this.file.set(photoData.file);
+
+    // this.uploadFile();
+  }
+
   uploadFile() {
     return this.apiService.uploadImage(this.file()!).subscribe();
   }
