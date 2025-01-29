@@ -1,8 +1,8 @@
-from langchain.embeddings import HuggingFaceEmbeddings
-from langchain.vectorstores.faiss import FAISS
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_community.vectorstores import FAISS
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate
-from langchain.chat_models.gigachat import GigaChat
+from langchain_gigachat import GigaChat
 from langchain.chains import create_retrieval_chain
 
 class QuestionAnsweringSystem:
