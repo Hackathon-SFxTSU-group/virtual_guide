@@ -3,12 +3,9 @@ from fastapi import FastAPI, File, UploadFile, Form, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-import torch
-from torchvision import models, transforms
 from PIL import Image
 import io
 import os
-import uvicorn
 
 from app.nn_models.Embed import QuestionAnsweringSystem
 from app.nn_models.ImageClassifier import ImageClassifier
@@ -44,6 +41,7 @@ templates = Jinja2Templates(directory="app/templates")
 # Папка для сохранения загруженных изображений
 UPLOAD_DIR = "app/static"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+app.mount("/static", StaticFiles(directory=UPLOAD_DIR), name="static")
 
 # Главная страница с формой загрузки
 @app.get("/", response_class=HTMLResponse)
