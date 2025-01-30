@@ -14,7 +14,7 @@ class ImageClassifier:
         self.class_names = class_names
 
         # Загрузка модели
-        self.model = models.resnet18(pretrained=False)  # Не загружаем предобученные веса
+        self.model = models.resnet18(weights=models.ResNet18_Weights.IMAGENET1K_V1)  # Не загружаем предобученные веса
         num_ftrs = self.model.fc.in_features
         self.model.fc = torch.nn.Linear(num_ftrs, len(self.class_names))  # Заменяем последний слой
 
