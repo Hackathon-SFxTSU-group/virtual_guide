@@ -1,0 +1,7 @@
+{
+  "name": "Social_Network",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}

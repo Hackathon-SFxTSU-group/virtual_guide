@@ -6,11 +6,12 @@ from fastapi.templating import Jinja2Templates
 from PIL import Image
 import io
 import os
+from pydantic import BaseModel
 
 from app.nn_models.Embed import QuestionAnsweringSystem
 from app.nn_models.ImageClassifier import ImageClassifier
 
-# Список классов (ваши классы)
+#Список классов (ваши классы)
 class_names = [
     "Антонио Канова. Амур и Психея",
     "Афродита Венера Таврическая",
@@ -22,6 +23,14 @@ class_names = [
     "Часы-яйцо Ротшильда фирмы Фаберже",
     "Эрот с луком"
 ]
+
+# Модель для входных данных
+class PredictRequest(BaseModel):
+    image_url: str
+
+# Модель для входных данных
+class AskRequest(BaseModel):
+    question: str
 
 # Загрузка модели
 qa_system = QuestionAnsweringSystem(
@@ -43,7 +52,7 @@ UPLOAD_DIR = "app/static"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 app.mount("/static", StaticFiles(directory=UPLOAD_DIR), name="static")
 
-# Главная страница с формой загрузки
+# # Главная страница с формой загрузки
 @app.get("/", response_class=HTMLResponse)
 async def upload_form(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
@@ -72,11 +81,6 @@ async def upload_image(file: UploadFile = File(...)):
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=400)
 
-from pydantic import BaseModel
-
-# Модель для входных данных
-class PredictRequest(BaseModel):
-    image_url: str
 
 # Предсказание
 @app.post("/predict")
@@ -94,11 +98,6 @@ async def predict(request: PredictRequest):
 
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=400)
-    
-
-# Модель для входных данных
-class AskRequest(BaseModel):
-    question: str
 
 
 @app.post("/ask")
