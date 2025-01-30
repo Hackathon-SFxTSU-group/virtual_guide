@@ -6,39 +6,40 @@ from fastapi.templating import Jinja2Templates
 from PIL import Image
 import io
 import os
+from pydantic import BaseModel
 
-#from app.nn_models.Embed import QuestionAnsweringSystem
-#from app.nn_models.ImageClassifier import ImageClassifier
+from app.nn_models.Embed import QuestionAnsweringSystem
+from app.nn_models.ImageClassifier import ImageClassifier
 
-# Список классов (ваши классы)
-# class_names = [
-#     "Антонио Канова. Амур и Психея",
-#     "Афродита Венера Таврическая",
-#     "Колыванская ваза",
-#     "Леонардо да Винчи. Мадонна Литта",
-#     "Микеланджело. Скорчившийся мальчик",
-#     "Статуя Юпитера",
-#     "Часы павлин",
-#     "Часы-яйцо Ротшильда фирмы Фаберже",
-#     "Эрот с луком"
-# ]
+#Список классов (ваши классы)
+class_names = [
+    "Антонио Канова. Амур и Психея",
+    "Афродита Венера Таврическая",
+    "Колыванская ваза",
+    "Леонардо да Винчи. Мадонна Литта",
+    "Микеланджело. Скорчившийся мальчик",
+    "Статуя Юпитера",
+    "Часы павлин",
+    "Часы-яйцо Ротшильда фирмы Фаберже",
+    "Эрот с луком"
+]
 
-## Модель для входных данных
-# class PredictRequest(BaseModel):
-#     image_url: str
+# Модель для входных данных
+class PredictRequest(BaseModel):
+    image_url: str
 
-# # Модель для входных данных
-# class AskRequest(BaseModel):
-#     question: str
+# Модель для входных данных
+class AskRequest(BaseModel):
+    question: str
 
-# # Загрузка модели
-# qa_system = QuestionAnsweringSystem(
-#         faiss_index_path="faiss_index"
-#     )
-# classifier = ImageClassifier(
-#     model_path='saved_models/best_model_resnet.pth',
-#     class_names=class_names
-# )
+# Загрузка модели
+qa_system = QuestionAnsweringSystem(
+        faiss_index_path="faiss_index"
+    )
+classifier = ImageClassifier(
+    model_path='saved_models/best_model_resnet.pth',
+    class_names=class_names
+)
 
 # Создание FastAPI приложения
 app = FastAPI()
@@ -52,71 +53,62 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 app.mount("/static", StaticFiles(directory=UPLOAD_DIR), name="static")
 
 # # Главная страница с формой загрузки
-# @app.get("/", response_class=HTMLResponse)
-# async def upload_form(request: Request):
-#     return templates.TemplateResponse("index.html", {"request": request})
-
-# Тестовая страница
 @app.get("/", response_class=HTMLResponse)
 async def upload_form(request: Request):
-    context = {
-        'request': request,
-        'name': 'Admin',
-    }
-    return templates.TemplateResponse("test.html", context)
+    return templates.TemplateResponse("index.html", {"request": request})
 
-# # Загрузка изображения
-# @app.post("/upload")
-# async def upload_image(file: UploadFile = File(...)):
-#     try:
-#         # Читаем изображение
-#         image_data = await file.read()
-#         image = Image.open(io.BytesIO(image_data))
+# Загрузка изображения
+@app.post("/upload")
+async def upload_image(file: UploadFile = File(...)):
+    try:
+        # Читаем изображение
+        image_data = await file.read()
+        image = Image.open(io.BytesIO(image_data))
 
-#         # Сохраняем изображение на сервере
-#         filename = f"{uuid4()}.png"
-#         image_path = os.path.join(UPLOAD_DIR, filename)
-#         image.save(image_path)
+        # Сохраняем изображение на сервере
+        filename = f"{uuid4()}.png"
+        image_path = os.path.join(UPLOAD_DIR, filename)
+        image.save(image_path)
 
-#         # Возвращаем информацию о загруженном изображении
-#         return JSONResponse(content={
-#             "filename": file.filename,
-#             "format": image.format,
-#             "size": {"width": image.width, "height": image.height},
-#             "image_url": f"/static/{filename}"
-#         })
+        # Возвращаем информацию о загруженном изображении
+        return JSONResponse(content={
+            "filename": file.filename,
+            "format": image.format,
+            "size": {"width": image.width, "height": image.height},
+            "image_url": f"/static/{filename}"
+        })
 
-#     except Exception as e:
-#         return JSONResponse(content={"error": str(e)}, status_code=400)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=400)
 
 
-# # Предсказание
-# @app.post("/predict")
-# async def predict(request: PredictRequest):
-#     try:
-#         # Открываем изображение
-#         file_path = request.image_url.lstrip("/")
-#         image_path = os.path.join("app", file_path)
+# Предсказание
+@app.post("/predict")
+async def predict(request: PredictRequest):
+    try:
+        # Открываем изображение
+        file_path = request.image_url.lstrip("/")
+        image_path = os.path.join("app", file_path)
 
-#         # Предсказание класса
-#         predicted_class = classifier.predict(image_path)
+        # Предсказание класса
+        predicted_class = classifier.predict(image_path)
 
-#         # Возвращаем результат
-#         return JSONResponse(content={"predicted_class": predicted_class})
+        # Возвращаем результат
+        return JSONResponse(content={"predicted_class": predicted_class})
 
-#     except Exception as e:
-#         return JSONResponse(content={"error": str(e)}, status_code=400)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=400)
 
 
-# @app.post("/ask")
-# async def ask_question(request: AskRequest):
-#     try:
-#         # Ответ на вопрос
-#         answer = qa_system.ask_question(request.question)
+@app.post("/ask")
+async def ask_question(request: AskRequest):
+    try:
+        # Ответ на вопрос
+        answer = qa_system.ask_question(request.question)
 
-#         # Возвращаем результат
-#         return JSONResponse(content={
-#             "answer": answer,
-#         })
-#     except Exception as e:
-#         return JSONResponse(content={"error": str(e)}, status_code=400)
+        # Возвращаем результат
+        return JSONResponse(content={
+            "answer": answer,
+        })
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=400)
