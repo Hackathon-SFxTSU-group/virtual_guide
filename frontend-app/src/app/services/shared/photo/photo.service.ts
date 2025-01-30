@@ -1,4 +1,5 @@
 import {Camera, CameraResultType, CameraSource, Photo} from "@capacitor/camera";
+import {IProcessedPhotoData} from "../../../interfaces/interfaces";
 
 export abstract class PhotoService {
   async getPhoto() {
@@ -9,7 +10,7 @@ export abstract class PhotoService {
     return this.processGetPhoto(CameraSource.Camera)
   }
 
-  private async processGetPhoto(cameraSource: CameraSource) {
+  private async processGetPhoto(cameraSource: CameraSource): Promise<IProcessedPhotoData> {
     const image = await Camera.getPhoto({
       source: cameraSource,
       resultType: CameraResultType.Uri,

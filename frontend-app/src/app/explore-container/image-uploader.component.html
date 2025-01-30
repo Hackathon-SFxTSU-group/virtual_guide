@@ -2,8 +2,21 @@
   <div class="image-uploader__container">
     <ion-button (click)="getPhoto()">From Gallery</ion-button>
     <ion-button (click)="takePhoto()">Take Photo</ion-button>
-    @if (imagePath()) {
-      <img [src]="imagePath()" alt="processed photo">
+    @if (imagePreview()) {
+      <div class="image-uploader__image-container">
+        <img class="image-uploader__image" [src]="imagePreview()" alt="preview photo">
+      </div>
+      <ion-button (click)="recognizeImage()">Recognize</ion-button>
+    }
+    @if (predictedInfo()) {
+      <span>Result:</span>
+      <span>Класс: {{ predictedInfo() }}</span>
+      <ion-input placeholder="Введите вопрос" [value]="question()" (ionChange)="onChange($event)"></ion-input>
+      <ion-button (click)="askQuestion()">Ask Question</ion-button>
+    }
+    @if (answer()) {
+      <span>Result:</span>
+      <span>{{ answer() }}</span>
     }
   </div>
 </div>
