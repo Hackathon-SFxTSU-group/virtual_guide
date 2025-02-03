@@ -10,19 +10,10 @@ from pydantic import BaseModel
 
 from app.nn_models.Embed import QuestionAnsweringSystem
 from app.nn_models.ImageClassifier import ImageClassifier
+from app.helpers.ClassManager import ClassManager
 
-#Список классов (ваши классы)
-class_names = [
-    "Антонио Канова. Амур и Психея",
-    "Афродита Венера Таврическая",
-    "Колыванская ваза",
-    "Леонардо да Винчи. Мадонна Литта",
-    "Микеланджело. Скорчившийся мальчик",
-    "Статуя Юпитера",
-    "Часы павлин",
-    "Часы-яйцо Ротшильда фирмы Фаберже",
-    "Эрот с луком"
-]
+class_manager = ClassManager()
+class_names = class_manager.load_classes()
 
 # Модель для входных данных
 class PredictRequest(BaseModel):
@@ -37,7 +28,7 @@ qa_system = QuestionAnsweringSystem(
         faiss_index_path="faiss_index"
     )
 classifier = ImageClassifier(
-    model_path='saved_models/best_model_resnet.pth',
+    model_path='saved_models/best_model_new_resnet.pth',
     class_names=class_names
 )
 
