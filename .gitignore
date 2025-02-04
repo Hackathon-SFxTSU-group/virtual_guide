@@ -6,12 +6,9 @@ __pycache__/
 *.pyo
 
 # виртуальная среда
-vnv/
+venv/
 
 # VS Code IDE
 .vscode/
-
-# requrements
-requirements.txt
 
 images

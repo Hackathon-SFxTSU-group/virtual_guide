@@ -7,6 +7,7 @@ from PIL import Image
 import io
 import os
 from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.nn_models.Embed import QuestionAnsweringSystem
 from app.nn_models.ImageClassifier import ImageClassifier
@@ -34,6 +35,23 @@ classifier = ImageClassifier(
 
 # Создание FastAPI приложения
 app = FastAPI()
+
+# Настройка CORS
+origins = [
+    "http://localhost:4200",
+    "https://localhost:4200",
+    "http://10.0.2.2:8000",
+    "https://10.0.2.2:8000",
+]
+
+# Добавление CORS в FastAPI
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Настройка Jinja2
 templates = Jinja2Templates(directory="app/templates")
