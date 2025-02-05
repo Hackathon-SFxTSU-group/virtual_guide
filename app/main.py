@@ -6,34 +6,52 @@ from fastapi.templating import Jinja2Templates
 from PIL import Image
 import io
 import os
+from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.nn_models.Embed import QuestionAnsweringSystem
 from app.nn_models.ImageClassifier import ImageClassifier
+from app.helpers.ClassManager import ClassManager
 
-# Список классов (ваши классы)
-class_names = [
-    "Антонио Канова. Амур и Психея",
-    "Афродита Венера Таврическая",
-    "Колыванская ваза",
-    "Леонардо да Винчи. Мадонна Литта",
-    "Микеланджело. Скорчившийся мальчик",
-    "Статуя Юпитера",
-    "Часы павлин",
-    "Часы-яйцо Ротшильда фирмы Фаберже",
-    "Эрот с луком"
-]
+class_manager = ClassManager()
+class_names = class_manager.load_classes()
+
+# Модель для входных данных
+class PredictRequest(BaseModel):
+    image_url: str
+
+# Модель для входных данных
+class AskRequest(BaseModel):
+    question: str
 
 # Загрузка модели
 qa_system = QuestionAnsweringSystem(
         faiss_index_path="faiss_index"
     )
 classifier = ImageClassifier(
-    model_path='saved_models/best_model_resnet.pth',
+    model_path='saved_models/best_model_new_resnet.pth',
     class_names=class_names
 )
 
 # Создание FastAPI приложения
 app = FastAPI()
+
+# Настройка CORS
+# origins = [
+#     "http://localhost:4200",
+#     "https://localhost:4200",
+#     "http://10.0.2.2:8000",
+#     "https://10.0.2.2:8000",
+# ]
+
+# Добавление CORS в FastAPI
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Настройка Jinja2
 templates = Jinja2Templates(directory="app/templates")
@@ -43,7 +61,7 @@ UPLOAD_DIR = "app/static"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 app.mount("/static", StaticFiles(directory=UPLOAD_DIR), name="static")
 
-# Главная страница с формой загрузки
+# # Главная страница с формой загрузки
 @app.get("/", response_class=HTMLResponse)
 async def upload_form(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
@@ -72,11 +90,6 @@ async def upload_image(file: UploadFile = File(...)):
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=400)
 
-from pydantic import BaseModel
-
-# Модель для входных данных
-class PredictRequest(BaseModel):
-    image_url: str
 
 # Предсказание
 @app.post("/predict")
@@ -94,11 +107,6 @@ async def predict(request: PredictRequest):
 
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=400)
-    
-
-# Модель для входных данных
-class AskRequest(BaseModel):
-    question: str
 
 
 @app.post("/ask")

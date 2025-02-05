@@ -1,3 +1,17 @@
 hackaton-env/
+
+# Python bytecode files
+__pycache__/
+*.pyc
+*.pyo
+
+# виртуальная среда
 venv/
+
+# VS Code IDE
+.vscode/
+
+# WebStorm IDE
 .idea/
+
+images
