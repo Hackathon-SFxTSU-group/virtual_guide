@@ -1,7 +1,12 @@
 import {Camera, CameraResultType, CameraSource, Photo} from "@capacitor/camera";
 import {IProcessedPhotoData} from "../../../interfaces/interfaces";
+import {Directive, inject} from "@angular/core";
+import {LoaderService} from "../loader/loader.service";
 
+@Directive()
 export abstract class PhotoService {
+  private readonly loaderService = inject(LoaderService);
+
   async getPhoto() {
     return this.processGetPhoto(CameraSource.Photos)
   }
@@ -25,9 +30,14 @@ export abstract class PhotoService {
   }
 
   async getFile(image: Photo) {
+    this.loaderService.enable();
+
     const response = await fetch(image.webPath!);
     const blob = await response.blob();
     const filename = this.getFileName(image);
+
+    this.loaderService.disable();
+
     return new File([blob], filename, { type: blob.type });
   }
 

@@ -45,3 +45,9 @@
 ion-button {
   margin: 0;
 }
+
+ion-input {
+  .native-wrapper {
+    border-bottom: 1px solid var(--ion-color-primary);
+  }
+}

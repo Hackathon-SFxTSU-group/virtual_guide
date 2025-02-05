@@ -1,18 +1,19 @@
 import {ChangeDetectionStrategy, Component, inject, signal} from '@angular/core';
-import {IonButton, IonInput} from "@ionic/angular/standalone";
+import {IonButton, IonInput, IonItem} from "@ionic/angular/standalone";
 import {Optional} from "../types/optional.type";
 import {PhotoService} from "../services/shared/photo/photo.service";
 import {ApiService} from "../services/shared/api/api.service";
 import {IPredictResponse, IProcessedPhotoData, IQuestionResponse, IUploadResponse} from "../interfaces/interfaces";
-import {switchMap, tap} from "rxjs";
+import {finalize, switchMap, tap} from "rxjs";
 import {getUploadedImagePath} from "../utils/utils";
 import {InputChangeEventDetail} from "@ionic/angular";
+import {LoaderService} from "../services/shared/loader/loader.service";
 
 @Component({
   selector: 'app-image-uploader',
   templateUrl: './image-uploader.component.html',
   styleUrls: ['./image-uploader.component.scss'],
-  imports: [IonButton, IonInput],
+  imports: [IonButton, IonInput, IonItem],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ImageUploader {
@@ -25,6 +26,8 @@ export class ImageUploader {
   private readonly photoService = inject(PhotoService);
 
   private readonly apiService = inject(ApiService);
+
+  private readonly loaderService = inject(LoaderService);
 
   async getPhoto() {
     const photoData = await this.photoService.getPhoto();
@@ -39,6 +42,8 @@ export class ImageUploader {
   }
 
   recognizeImage() {
+    this.loaderService.enable();
+
     this.apiService.uploadImage(this.file()!)
       .pipe(
         tap((uploadData: IUploadResponse) => {
@@ -50,6 +55,9 @@ export class ImageUploader {
         tap((predictData: IPredictResponse) => {
           this.predictedInfo.set(predictData.predicted_class);
         }),
+        finalize(() => {
+          this.loaderService.disable();
+        }),
       )
       .subscribe();
   }
@@ -59,17 +67,30 @@ export class ImageUploader {
   }
 
   askQuestion() {
+    this.loaderService.enable();
+
     this.apiService.ask({ question: this.question() })
       .pipe(
         tap((questionResponse: IQuestionResponse) => {
           this.answer.set(questionResponse.answer)
-        })
+        }),
+        finalize(() => {
+          this.loaderService.disable();
+        }),
       )
       .subscribe()
   }
 
   private setPhotoData(photoData: IProcessedPhotoData) {
+    this.clearData();
+
     this.imagePreview.set(photoData.src);
     this.file.set(photoData.file);
+  }
+
+  private clearData() {
+    this.predictedInfo.set(null);
+    this.question.set('');
+    this.answer.set('');
   }
 }
