@@ -11,4 +11,7 @@ venv/
 # VS Code IDE
 .vscode/
 
+# WebStorm IDE
+.idea/
+
 images

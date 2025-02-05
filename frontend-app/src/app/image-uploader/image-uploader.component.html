@@ -1,0 +1,25 @@
+<div class="image-uploader ion-content-scroll-host">
+  <div class="image-uploader__container">
+    @if (!imagePreview()){
+      <h3>Загрузите изображение</h3>
+    }
+    <div class="image-uploader__controls">
+      <ion-button (click)="getPhoto()">Галерея</ion-button>
+      <ion-button (click)="takePhoto()">Камера</ion-button>
+    </div>
+    @if (imagePreview()) {
+      <div class="image-uploader__image-container">
+        <img class="image-uploader__image" [src]="imagePreview()" alt="preview photo">
+      </div>
+      <ion-button (click)="recognizeImage()">Распознать</ion-button>
+    }
+    @if (predictedInfo()) {
+      <span>{{ predictedInfo() }}</span>
+      <ion-input class="image-uploader__input" placeholder="Введите вопрос" [value]="question()" (ionChange)="onChange($event)"></ion-input>
+      <ion-button (click)="askQuestion()">Спросить</ion-button>
+    }
+    @if (answer()) {
+      <span>{{ answer() }}</span>
+    }
+  </div>
+</div>

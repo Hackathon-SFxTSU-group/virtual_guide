@@ -1,9 +1,0 @@
-<div class="image-uploader">
-  <div class="image-uploader__container">
-    <ion-button (click)="getPhoto()">From Gallery</ion-button>
-    <ion-button (click)="takePhoto()">Take Photo</ion-button>
-    @if (imagePath()) {
-      <img [src]="imagePath()" alt="processed photo">
-    }
-  </div>
-</div>
