@@ -1,12 +1,11 @@
-hackaton-env/
-
 # Python bytecode files
 __pycache__/
 *.pyc
 *.pyo
 
-# виртуальная среда
+# Виртуальные среды
 venv/
+hackaton-env/
 
 # VS Code IDE
 .vscode/
@@ -14,4 +13,10 @@ venv/
 # WebStorm IDE
 .idea/
 
+# Исходные данные
+# Изображения
 images
+# Загружаемые (исходные предобученные) модели
+pretrained_models
+# Результаты обучения для моделей Yolo
+runs
