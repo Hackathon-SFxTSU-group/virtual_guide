@@ -20,3 +20,5 @@ images
 pretrained_models
 # Результаты обучения для моделей Yolo
 runs
+
+saved_models/best_model_vit.pth
