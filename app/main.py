@@ -12,6 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.nn_models.Embed import QuestionAnsweringSystem
 from app.nn_models.ImageClassifier import ImageClassifier
 from app.helpers.ClassManager import ClassManager
+from app.nn_models.YoloClassifier import YoloImageClassifier
 
 class_manager = ClassManager()
 class_names = class_manager.load_classes()
@@ -28,8 +29,7 @@ class AskRequest(BaseModel):
 qa_system = QuestionAnsweringSystem(
         faiss_index_path="faiss_index"
     )
-classifier = ImageClassifier(
-    model_path='saved_models/best_model_new_resnet.pth',
+classifier = YoloImageClassifier(
     class_names=class_names
 )
 
