@@ -2,6 +2,7 @@
 __pycache__/
 *.pyc
 *.pyo
+*.ipynb_checkpoints/
 
 # Виртуальные среды
 venv/
@@ -20,7 +21,6 @@ images
 pretrained_models
 # Результаты обучения для моделей Yolo
 runs
-
+#
 saved_models/best_model_vit.pth
 
-images
